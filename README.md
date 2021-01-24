@@ -4,13 +4,13 @@
 
 Packages needed :
 
-Python 3.8
+* Python 3.8
 
-Pandas : `pip install pandas`
+* Pandas : `pip install pandas`
 
-Numpy : `pip install numpy`
+* Numpy : `pip install numpy`
 
-Pygame : `pip install pygame`
+* Pygame : `pip install pygame`
 
 # Example 
 
