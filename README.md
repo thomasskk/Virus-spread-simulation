@@ -1,6 +1,6 @@
 # Virus-spread-simulation
 
-Representation of the spread of a virus based approximately on the stats of the covid-19. The population size is 1 000 000 with each pixel representing one person. All the data is stocked and updated in a dataframe using pandas. I tried to maximize the performance as much as possible.
+Representation of the spread of a virus based approximately on the stats of the covid-19. The population size is 1 000 000 with each pixel representing one person. All the data is stocked and updated in a dataframe using pandas. I tried to maximize the performance as much as possible. I was able to get arround 5 fps on my setup.
 
 # Installation
 
