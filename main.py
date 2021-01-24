@@ -29,7 +29,7 @@ class City:
             pd.RangeIndex(start=0, stop=population_number), dtype='int8')
 
     def create_cluster(self):
-        sample = rng.integers(0, self.population_number, size=3, dtype='int32')
+        sample = rng.integers(0, self.population_number, size=5, dtype='int32')
 
         self.city['is_infected'] = np.select([self.city.index.isin(sample)],
                                              [self.city['is_infected'].values + 1],
@@ -76,23 +76,10 @@ class City:
                                                     self.city['day_since_infected'].values)
 
         # update contagious state ///
-        condition_symptom = [()]
-
-        #update transission rate per age ///
-
-
-
-        self.city['contagious'] = np.select(condition_symptom,
-                                            [2, 1],
-                                            self.city['contagious'].values)
-        # update symptom period
         self.city['contagious'] = np.select([(self.city['day_since_infected'].values == 18),
                                              (self.city['day_since_infected'].values > 1)],
                                             [0, 1],
                                             self.city['contagious'].values)
-
-
-
 
         # contagion update ///
         # create shift value for each person to translate the proximity of the contact in the graphic representation
@@ -103,7 +90,7 @@ class City:
         shifty = rng.normal(0, 10, size=10)
         shifty = np.select([((shifty > 0) & (shifty < 1)), ((shifty < 0) & (shifty > -1))], [1, -1],
                            np.round(shifty).astype('int8'))
-        shifty = shifty*1000
+        shifty = shifty * 1000
 
         condition = [
             (self.city['contagious'].shift(1).values == 1) & (
@@ -210,10 +197,19 @@ def main():
             yk = k // 1000
             screen.set_at((xk, yk), pygame.color.Color('green'))
 
-        pygame.draw.rect(screen, (250, 250, 250), (10, 8, 100, 10), 0)
-        textsurface = myfont.render("Infected : " + str(test.infected_number), True, (5, 5, 0))
-        textsurface = myfont.render("Day : " + str(test.day), True, (5, 10, 0))
-        screen.blit(textsurface, (10, 5))
+        text_day = myfont.render("Day : " + str(test.day), True, (0, 0, 0), (250, 250, 250))
+        text_infected = myfont.render("Infected : " + str(test.infected_number), True, (0, 0, 0), (250, 250, 250))
+        text_death_rate = myfont.render("Death rate : " + str(round(test.dead / test.population_number * 100, 2)) + "%",
+                                        True,
+                                        (0, 0, 0), (250, 250, 250))
+        text_recovered = myfont.render("Recovered : " + str(test.recovered), True, (0, 0, 0), (250, 250, 250))
+        text_dead = myfont.render("Dead : " + str(test.dead), True, (0, 0, 0), (250, 250, 250))
+
+        screen.blit(text_day, (5, 5))
+        screen.blit(text_infected, (5, 18))
+        screen.blit(text_death_rate, (5, 31))
+        screen.blit(text_recovered, (5, 44))
+        screen.blit(text_dead, (5, 57))
 
         pygame.display.update()
 
