@@ -42,10 +42,10 @@ class City:
                                       [3, 4],
                                       self.city['dead'].values)
 
-        # probability ///
+        # random number for each person will be used for death probability ///
         self.city['probability'] = rng.integers(0, 101, size=self.population_number, dtype='int8')
 
-        # update day since infection ///
+        # update day_since_infected ///
         self.city['day_since_infected'] = np.select([(self.city['is_infected'].values == 1) &
                                                      (self.city['day_since_infected'].values < 20)],
                                                     [self.city['day_since_infected'].values + 1],
@@ -70,7 +70,7 @@ class City:
         self.city['is_infected'] = np.select([self.city['day_since_infected'].values == 18],
                                              [2],
                                              self.city['is_infected'].values)
-        # reset day since infected
+        # reset day_since_infected
         self.city['day_since_infected'] = np.select([self.city['day_since_infected'].values == 18],
                                                     [0],
                                                     self.city['day_since_infected'].values)
@@ -82,7 +82,7 @@ class City:
                                             self.city['contagious'].values)
 
         # contagion update ///
-        # create shift value for each person to translate the proximity of the contact in the graphic representation
+        # create shift values for each person to translate the proximity of the contact in the graphic representation
         # the person's contacts will mainly be located in a square arround her in the graphic representation
         shiftx = rng.normal(0, 10, size=10)
         shiftx = np.select([((shiftx > 0) & (shiftx < 1)), ((shiftx < 0) & (shiftx > -1))], [1, -1],
@@ -141,13 +141,13 @@ class City:
                     self.city['contagious'].shift(shiftx[9] + shifty[9]).values == 1) & (
                     self.city['probability'].values > self.city['contagion_level'].shift(
                 shiftx[9] + shifty[9]).values)]
-
+        
+        # check if the non infected person get infected by one of his contact
         self.city['is_infected'] = np.where(self.city['is_infected'].values == 0,
                                             np.select(condition, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 0),
                                             self.city['is_infected'].values)
 
-        # update new case and infected number ///
-
+        # update stats ///
         self.new_case = ((self.city['is_infected'].values == 1) & (self.city['day_since_infected'] == 0)).sum()
         self.infected_number = (self.city['is_infected'].values == 1).sum()
         self.recovered += (self.city['dead'].values == 2).sum()
@@ -180,6 +180,8 @@ def main():
 
         infected = (test.city['day_since_infected'][(test.city['is_infected'].values == 1) &
                                                     (test.city['day_since_infected'] == 0)]).index
+        
+        # translate the dataframe index to a pixel coordinate
         for i in infected:
             xi = round(((i / 1000) % 1) * 1000)
             yi = i // 1000
