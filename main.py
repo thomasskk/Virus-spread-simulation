@@ -94,53 +94,14 @@ class City:
 
         condition = [
             (self.city['contagious'].shift(1).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[0] + shifty[0]).values),
+                self.city['probability'].values > self.city['contagion_level'].shift(
+                    shiftx[0] + shifty[0]).values)]
 
-            (self.city['contact'].values > 1) & (
-                    self.city['contagious'].shift(shiftx[1] + shifty[1]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[1] + shifty[1]).values),
-
-            (self.city['contact'].values > 2) & (
-                    self.city['contagious'].shift(shiftx[2] + shifty[2]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[2] + shifty[2]).values),
-
-            (self.city['contact'].values > 3) & (
-                    self.city['contagious'].shift(shiftx[3] + shifty[3]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[3] + shifty[3]).values),
-
-            (self.city['contact'].values > 4) & (
-                    self.city['contagious'].shift(shiftx[4] + shifty[4]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[4] + shifty[4]).values),
-
-            (self.city['contact'].values > 5) & (
-                    self.city['contagious'].shift(shiftx[5] + shifty[5]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[5] + shifty[5]).values),
-
-            (self.city['contact'].values > 6) & (
-                    self.city['contagious'].shift(shiftx[6] + shifty[6]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[6] + shifty[6]).values),
-
-            (self.city['contact'].values > 7) & (
-                    self.city['contagious'].shift(shiftx[7] + shifty[7]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[7] + shifty[7]).values),
-
-            (self.city['contact'].values > 8) & (
-                    self.city['contagious'].shift(shiftx[8] + shifty[8]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[8] + shifty[8]).values),
-
-            (self.city['contact'].values > 9) & (
-                    self.city['contagious'].shift(shiftx[9] + shifty[9]).values == 1) & (
-                    self.city['probability'].values > self.city['contagion_level'].shift(
-                shiftx[9] + shifty[9]).values)]
+        for i in range(9):
+            condition += [(self.city['contact'].values > i) & (
+                self.city['contagious'].shift(shiftx[i] + shifty[i]).values == 1) & (
+                self.city['probability'].values > self.city['contagion_level'].shift(
+                    shiftx[i] + shifty[i]).values)]
         
         # check if the non infected person get infected by one of his contact
         self.city['is_infected'] = np.where(self.city['is_infected'].values == 0,
