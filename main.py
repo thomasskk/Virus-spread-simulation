@@ -7,7 +7,7 @@ rng = default_rng()
 
 
 class City:
-    infected_number = 0
+    infected = 0
     new_case = 0
     day = 0
     population_number = 0
@@ -35,7 +35,7 @@ class City:
                                              [self.city['is_infected'].values + 1],
                                              self.city['is_infected'])
 
-        self.infected_number += (self.city['is_infected'].values == 1).sum()
+        self.infected += (self.city['is_infected'].values == 1).sum()
 
     def update(self):
         self.city['dead'] = np.select([(self.city['dead'].values == 2), (self.city['dead'].values == 1)],
@@ -43,7 +43,8 @@ class City:
                                       self.city['dead'].values)
 
         # random number for each person will be used for death probability ///
-        self.city['probability'] = rng.integers(0, 101, size=self.population_number, dtype='int8')
+        self.city['probability'] = rng.integers(
+            0, 101, size=self.population_number, dtype='int8')
 
         # update day_since_infected ///
         self.city['day_since_infected'] = np.select([(self.city['is_infected'].values == 1) &
@@ -57,10 +58,14 @@ class City:
 
         condition_dead = [
             (self.city['age'].values < 30),
-            ((self.city['age'].values > 80) & (self.city['probability'].values > 79)),
-            ((self.city['age'].values > 70) & (self.city['probability'].values > 89)),
-            ((self.city['age'].values > 60) & (self.city['probability'].values > 96)),
-            ((self.city['age'].values > 30) & (self.city['probability'].values > 98)),
+            ((self.city['age'].values > 80) &
+             (self.city['probability'].values > 79)),
+            ((self.city['age'].values > 70) &
+             (self.city['probability'].values > 89)),
+            ((self.city['age'].values > 60) &
+             (self.city['probability'].values > 96)),
+            ((self.city['age'].values > 30) &
+             (self.city['probability'].values > 98)),
         ]
 
         self.city['dead'] = np.where(self.city['day_since_infected'].values == 18,
@@ -102,15 +107,17 @@ class City:
                 self.city['contagious'].shift(shiftx[i] + shifty[i]).values == 1) & (
                 self.city['probability'].values > self.city['contagion_level'].shift(
                     shiftx[i] + shifty[i]).values)]
-        
+
         # check if the non infected person get infected by one of his contact
         self.city['is_infected'] = np.where(self.city['is_infected'].values == 0,
-                                            np.select(condition, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 0),
+                                            np.select(
+                                                condition, [1]*10, 0),
                                             self.city['is_infected'].values)
 
         # update stats ///
-        self.new_case = ((self.city['is_infected'].values == 1) & (self.city['day_since_infected'] == 0)).sum()
-        self.infected_number = (self.city['is_infected'].values == 1).sum()
+        self.new_case = ((self.city['is_infected'].values == 1) & (
+            self.city['day_since_infected'] == 0)).sum()
+        self.infected = (self.city['is_infected'].values == 1).sum()
         self.recovered += (self.city['dead'].values == 2).sum()
         self.dead += (self.city['dead'].values == 1).sum()
 
@@ -141,32 +148,36 @@ def main():
 
         infected = (test.city['day_since_infected'][(test.city['is_infected'].values == 1) &
                                                     (test.city['day_since_infected'] == 0)]).index
-        
+        dead = (test.city['dead'][test.city['dead'].values == 1]).index
+        recovered = (test.city['dead'][test.city['dead'].values == 2]).index
+
         # translate the dataframe index to a pixel coordinate
         for i in infected:
             xi = round(((i / 1000) % 1) * 1000)
             yi = i // 1000
             screen.set_at((xi, yi), pygame.color.Color('red'))
 
-        dead = (test.city['dead'][test.city['dead'].values == 1]).index
         for j in dead:
             xj = round(((j / 1000) % 1) * 1000)
             yj = j // 1000
             screen.set_at((xj, yj), pygame.color.Color('black'))
 
-        recovered = (test.city['dead'][test.city['dead'].values == 2]).index
         for k in recovered:
             xk = round(((k / 1000) % 1) * 1000)
             yk = k // 1000
             screen.set_at((xk, yk), pygame.color.Color('green'))
 
-        text_day = myfont.render("Day : " + str(test.day), True, (0, 0, 0), (250, 250, 250))
-        text_infected = myfont.render("Infected : " + str(test.infected_number), True, (0, 0, 0), (250, 250, 250))
-        text_death_rate = myfont.render("Death rate : " + str(round(test.dead / test.population_number * 100, 2)) + "%",
+        text_day = myfont.render(
+            "Day : " + str(test.day), True, (0, 0, 0), (250, 250, 250))
+        text_infected = myfont.render(
+            "Infected : " + str(test.infected), True, (0, 0, 0), (250, 250, 250))
+        text_death_rate = myfont.render("Death rate : " + str(round(test.dead / (test.infected + test.dead + test.recovered) * 100, 1)) + "%",
                                         True,
                                         (0, 0, 0), (250, 250, 250))
-        text_recovered = myfont.render("Recovered : " + str(test.recovered), True, (0, 0, 0), (250, 250, 250))
-        text_dead = myfont.render("Dead : " + str(test.dead), True, (0, 0, 0), (250, 250, 250))
+        text_recovered = myfont.render(
+            "Recovered : " + str(test.recovered), True, (0, 0, 0), (250, 250, 250))
+        text_dead = myfont.render(
+            "Dead : " + str(test.dead), True, (0, 0, 0), (250, 250, 250))
 
         screen.blit(text_day, (5, 5))
         screen.blit(text_infected, (5, 18))
